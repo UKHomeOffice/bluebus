@@ -3,7 +3,7 @@ name := "bluebus"
 
 version := "0.3.3-DRT"
 
-lazy val scala212 = "2.12.8"
+lazy val scala212 = "2.12.17"
 
 lazy val supportedScalaVersions = List(scala212)
 
