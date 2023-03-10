@@ -8,21 +8,39 @@ platform:
   arch: amd64
 
 steps:
-  - name: Build
+  - name: analysis
     pull: if-not-exists
-    image: quay.io/ukhomeofficedigital/scala-sbt-nodejs
+    image: quay.io/ukhomeofficedigital/scala-sbt-nodejs:v1.0.0
     commands:
-    - /root/entrypoint.sh
-    - sbt +compile
+      - /root/entrypoint.sh
+      - sbt -ivy ./.ivy2 dependencyCheck
+      - sbt scalastyle | true
+      - sbt scapegoat | true
     environment:
       ARTIFACTORY_PASSWORD:
         from_secret: ARTIFACTORY_PASSWORD
-      ARTIFACTORY_USERNAME: drt-artifactory-robot
+      ARTIFACTORY_USERNAME: drt_artifactory_drone
+      ENV_LOG_LEVEL: ERROR
     when:
       event:
         - push
 
-  - name: Publish
+  - name: sonar-scanner
+    pull: if-not-exists
+    image: quay.io/ukhomeofficedigital/sonar-scanner:v3.0.1
+    commands:
+      - sonar-scanner -Dsonar.projectVersion=B${DRONE_BUILD_NUMBER}
+    environment:
+      DRONE_BUILD_NUMBER: ${DRONE_BUILD_NUMBER}
+    when:
+      branch:
+        - ${DRONE_BRANCH}
+      event:
+        - push
+    depends_on:
+      - analysis
+
+  - name: build
     pull: if-not-exists
     image: quay.io/ukhomeofficedigital/scala-sbt-nodejs
     commands:
@@ -31,11 +49,10 @@ steps:
     environment:
       ARTIFACTORY_PASSWORD:
         from_secret: ARTIFACTORY_PASSWORD
-      ARTIFACTORY_USERNAME: drt-artifactory-robot
+      ARTIFACTORY_USERNAME: drt_artifactory_drone
     when:
+      branch:
+        - ${DRONE_BRANCH}
       event:
         - push
-    depends_on:
-      - Build
-
 ...
