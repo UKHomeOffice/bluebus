@@ -1,7 +1,7 @@
 
 name := "bluebus"
 
-version := "0.5.1-DRT"
+ThisBuild / version := "v" + sys.env.getOrElse("DRONE_BUILD_NUMBER", sys.env.getOrElse("BUILD_ID", "DEV"))
 
 lazy val scala = "2.13.10"
 
