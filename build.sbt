@@ -1,7 +1,7 @@
 
 name := "bluebus"
 
-version := "0.5.0-DRT"
+version := "0.5.1-DRT"
 
 lazy val scala = "2.13.10"
 
