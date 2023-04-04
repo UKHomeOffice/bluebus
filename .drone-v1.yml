@@ -8,20 +8,34 @@ platform:
   arch: amd64
 
 steps:
-- name: build
-  pull: if-not-exists
-  image: quay.io/ukhomeofficedigital/scala-sbt-nodejs
-  commands:
-  - /root/entrypoint.sh
-  - sbt +publish
-  environment:
-    ARTIFACTORY_PASSWORD:
-      from_secret: ARTIFACTORY_PASSWORD
-    ARTIFACTORY_USERNAME: drt-artifactory-robot
-  when:
-    branch:
-    - ${DRONE_BRANCH}
-    event:
-    - push
-    
+  - name: Build
+    pull: if-not-exists
+    image: quay.io/ukhomeofficedigital/scala-sbt-nodejs
+    commands:
+    - /root/entrypoint.sh
+    - sbt +compile
+    environment:
+      ARTIFACTORY_PASSWORD:
+        from_secret: ARTIFACTORY_PASSWORD
+      ARTIFACTORY_USERNAME: drt-artifactory-robot
+    when:
+      event:
+        - push
+
+  - name: Publish
+    pull: if-not-exists
+    image: quay.io/ukhomeofficedigital/scala-sbt-nodejs
+    commands:
+      - /root/entrypoint.sh
+      - sbt +publish
+    environment:
+      ARTIFACTORY_PASSWORD:
+        from_secret: ARTIFACTORY_PASSWORD
+      ARTIFACTORY_USERNAME: drt-artifactory-robot
+    when:
+      event:
+        - push
+    depends_on:
+      - Build
+
 ...
