@@ -1,29 +1,27 @@
 
 name := "bluebus"
 
-version := "0.3.3-DRT"
+ThisBuild / version := "v" + sys.env.getOrElse("DRONE_BUILD_NUMBER", sys.env.getOrElse("BUILD_ID", "DEV"))
 
-lazy val scala212 = "2.12.8"
+scalaVersion := "2.13.10"
 
-lazy val supportedScalaVersions = List(scala212)
+ThisBuild / scapegoatVersion := "2.1.1"
 
 name := "bluebus"
 organization := "uk.gov.homeoffice"
 organizationName := "UK Home Office"
 description := "Forked from https://github.com/sothach/bluebus"
 
-crossScalaVersions := supportedScalaVersions
+val artifactory = "https://artifactory.digital.homeoffice.gov.uk/"
 
-publishTo := {
-  val artifactory = "https://artifactory.digital.homeoffice.gov.uk/"
-
-  Some("release" at artifactory + "artifactory/libs-release")
-}
 
 libraryDependencies ++= Seq(
-  "net.databinder.dispatch" %% "dispatch-core" % "0.13.4",
-  "org.scalatest" %% "scalatest" % "3.0.5" % Test,
+  "org.dispatchhttp" %% "dispatch-core" % "1.2.0",
   "org.mockito" % "mockito-all" % "2.0.2-beta" % Test,
-  "net.jadler" % "jadler-all" % "1.3.0" % Test)
+  "net.jadler" % "jadler-all" % "1.3.0" % Test,
+  "org.scalatest" %% "scalatest" % "3.2.15" % Test,
+)
+
+publishTo := Some("release" at artifactory + "artifactory/libs-release")
 
 trapExit := false
