@@ -40,7 +40,7 @@ steps:
     depends_on:
       - analysis
 
-  - name: build
+  - name: publish
     pull: if-not-exists
     image: quay.io/ukhomeofficedigital/scala-sbt-nodejs
     commands:
