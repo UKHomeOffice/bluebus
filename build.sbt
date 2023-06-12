@@ -5,7 +5,7 @@ ThisBuild / version := "v" + sys.env.getOrElse("DRONE_BUILD_NUMBER", sys.env.get
 
 scalaVersion := "2.13.10"
 
-ThisBuild / scapegoatVersion := "2.1.1"
+ThisBuild / scapegoatVersion := "2.1.2"
 
 name := "bluebus"
 organization := "uk.gov.homeoffice"
