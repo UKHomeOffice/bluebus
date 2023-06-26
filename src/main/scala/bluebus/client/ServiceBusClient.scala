@@ -1,42 +1,41 @@
 package bluebus.client
 
+import akka.actor.ActorSystem
+import akka.http.scaladsl.Http
+import akka.http.scaladsl.model.headers.RawHeader
+import akka.http.scaladsl.model.{HttpHeader, HttpMethods, HttpRequest}
 import bluebus.configuration.SBusConfig
-import dispatch.{Http, Req, as, url}
+
+import scala.concurrent.duration.DurationInt
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
-class ServiceBusClient(config: SBusConfig) {
-  val http = Http.default
-  def readHeaders = Map(
+class ServiceBusClient(config: SBusConfig)(implicit system: ActorSystem) {
+  private val readHeadersRaw = Map(
     "Authorization" -> config.sasToken,
-    "Accept" -> config.contentType)
+    "Accept" -> config.contentType
+  )
 
-  val request = (endpoint: String) => {
-    val req = url(endpoint).timeout
-    config.isSecure match {
-      case true =>
-        req.secure
-      case false =>
-        req
-    }
-  }
+  private def constructHeaders(readHeadersRaw: Map[String, String]): Seq[HttpHeader] =
+    readHeadersRaw.map { case (k, v) => RawHeader(k, v) }.toSeq
 
-  def peek = http(request(s"${config.endpoint}/head").POST <:< readHeaders << "" OK as.String)
+  def peek: Future[String] = Http()
+    .singleRequest(HttpRequest(uri = s"${config.endpoint}/head", method = HttpMethods.POST, headers = constructHeaders(readHeadersRaw)))
+    .flatMap(_.entity.toStrict(10.seconds).map(_.data.utf8String))
 
-  def receive = http(request(s"${config.endpoint}/head").DELETE <:< readHeaders << "" OK as.String)
+  def receive: Future[String] = Http()
+    .singleRequest(HttpRequest(uri = s"${config.endpoint}/head", method = HttpMethods.DELETE, headers = constructHeaders(readHeadersRaw)))
+    .flatMap(_.entity.toStrict(10.seconds).map(_.data.utf8String))
 
-  def send(message: String, messageId: String) = {
+  def send(message: String, messageId: String): Future[String] = {
     val headers = Map(
       "MessageId" -> messageId,
       "Authorization" -> config.sasToken,
       "Content-Type" -> config.contentType)
-    http(request(config.endpoint) <:< headers << message OK as.String)
-  }
 
-  def shutdown() = http.shutdown()
-
-  private implicit class Request(req: Req) {
-    def timeout = req.setParameters(Map(
-      "timeout" -> Seq(config.timeout.getSeconds.toString)))
+    Http()
+      .singleRequest(HttpRequest(uri = config.endpoint, headers = constructHeaders(headers)))
+      .flatMap(_.entity.toStrict(10.seconds).map(_.data.utf8String))
   }
 }
