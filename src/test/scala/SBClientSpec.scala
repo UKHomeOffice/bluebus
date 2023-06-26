@@ -1,3 +1,5 @@
+import akka.actor.ActorSystem
+
 import java.net.URL
 import java.util.concurrent.Executors
 import bluebus.client.ServiceBusClient
@@ -15,6 +17,7 @@ import scala.concurrent.duration._
 class SBClientSpec extends AnyWordSpec with Matchers with ScalaFutures with BeforeAndAfterAll {
   implicit val ec: ExecutionContextExecutor = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(10))
   var testSubject: Option[ServiceBusClient] = None
+  var actorSystem: ActorSystem = null
 
   /*
       200	Message successfully deleted.
@@ -119,23 +122,25 @@ class SBClientSpec extends AnyWordSpec with Matchers with ScalaFutures with Befo
           "TimeToLive" : 1209600
         }"""
 
-  def initializeClient: Option[ServiceBusClient] = {
+  def initializeClient(actorSystem: ActorSystem): Option[ServiceBusClient] = {
     val config = SBusConfig(
       rootUri=new URL(s"http://localhost:$port"),
       queueName="queueName",
       sasKeyName="RootManageSharedAccessKey",
       sasKey="sasKey")
-    Some(new ServiceBusClient(config))
+    Some(new ServiceBusClient(config)(actorSystem))
   }
 
   override def beforeAll: Unit = {
     initJadler()
-    testSubject = initializeClient
+    actorSystem = ActorSystem("test")
+    testSubject = initializeClient(actorSystem)
   }
 
   override def afterAll: Unit = {
-    testSubject.foreach(_.shutdown())
+//    testSubject.foreach(_.shutdown())
     testSubject = None
     closeJadler()
+    actorSystem.terminate()
   }
 }
