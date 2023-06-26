@@ -138,7 +138,6 @@ class SBClientSpec extends AnyWordSpec with Matchers with ScalaFutures with Befo
   }
 
   override def afterAll: Unit = {
-//    testSubject.foreach(_.shutdown())
     testSubject = None
     closeJadler()
     actorSystem.terminate()

@@ -16,7 +16,6 @@ val artifactory = "https://artifactory.digital.homeoffice.gov.uk/"
 
 
 libraryDependencies ++= Seq(
-//  "org.dispatchhttp" %% "dispatch-core" % "1.2.0",
   "com.typesafe.akka" %% "akka-actor-typed" % "2.7.0",
   "com.typesafe.akka" %% "akka-stream" % "2.7.0",
   "com.typesafe.akka" %% "akka-http" % "10.5.2",
