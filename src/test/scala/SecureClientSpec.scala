@@ -5,8 +5,6 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
 import java.net.URL
-import scala.concurrent.Await
-import scala.concurrent.duration.DurationInt
 
 class SecureClientSpec extends AnyWordSpec with Matchers {
 
