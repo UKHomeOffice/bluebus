@@ -11,41 +11,37 @@ import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
 
 class ServiceBusClient(config: SBusConfig)(implicit system: ActorSystem) {
-  private val readHeadersRaw = Map(
+  private def readHeadersRaw: Seq[HttpHeader] = constructHeaders(Map(
     "Authorization" -> config.sasToken,
     "Accept" -> config.contentType
-  )
+  ))
 
   private def constructHeaders(readHeadersRaw: Map[String, String]): Seq[HttpHeader] =
     readHeadersRaw.map { case (k, v) => RawHeader(k, v) }.toSeq
 
   def peek: Future[String] = filter200(
-    Http().singleRequest(HttpRequest(uri = s"${config.endpoint}/head", method = HttpMethods.POST, headers = constructHeaders(readHeadersRaw)))
+    Http().singleRequest(HttpRequest(uri = s"${config.endpoint}/head", method = HttpMethods.POST, headers = readHeadersRaw))
   )
 
-  private def filter200(eventualResponse: Future[HttpResponse]) = {
+  private def filter200(eventualResponse: Future[HttpResponse]): Future[String] = {
     eventualResponse
       .flatMap {
         case r if r.status.isSuccess() =>
-          r.entity.toStrict(10.seconds).map(_.data.utf8String)
+          r.entity
+            .toStrict(1.seconds)
+            .map(_.data.utf8String)
+            .recover { e =>
+              r.entity.discardBytes()
+              throw new Exception(s"Failed to read response body: ${e.getMessage}")
+            }
         case r =>
+          r.entity.discardBytes()
           Future.failed(new Exception(s"Non-200 response: ${r.status}"))
       }
   }
 
   def receive: Future[String] = filter200(
     Http()
-      .singleRequest(HttpRequest(uri = s"${config.endpoint}/head", method = HttpMethods.DELETE, headers = constructHeaders(readHeadersRaw)))
+      .singleRequest(HttpRequest(uri = s"${config.endpoint}/head", method = HttpMethods.DELETE, headers = readHeadersRaw))
   )
-
-  def send(message: String, messageId: String): Future[String] = {
-    val headers = Map(
-      "MessageId" -> messageId,
-      "Authorization" -> config.sasToken,
-      "Content-Type" -> config.contentType)
-
-    filter200(
-      Http().singleRequest(HttpRequest(uri = config.endpoint, headers = constructHeaders(headers)))
-    )
-  }
 }
