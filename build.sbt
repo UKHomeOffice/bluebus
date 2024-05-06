@@ -3,7 +3,7 @@ name := "bluebus"
 
 ThisBuild / version := "v" + sys.env.getOrElse("DRONE_BUILD_NUMBER", sys.env.getOrElse("BUILD_ID", "DEV"))
 
-scalaVersion := "2.13.10"
+scalaVersion := "2.13.14"
 
 ThisBuild / scapegoatVersion := "2.1.1"
 
