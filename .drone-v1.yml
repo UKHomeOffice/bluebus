@@ -42,7 +42,7 @@ steps:
 
   - name: publish
     pull: if-not-exists
-    image: quay.io/ukhomeofficedigital/scala-sbt-nodejs
+    image: quay.io/ukhomeofficedigital/scala-sbt-nodejs:v1.4.0-debian12-jdk17-node20
     commands:
       - /root/entrypoint.sh
       - sbt +publish
