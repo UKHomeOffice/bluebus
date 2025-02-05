@@ -3,7 +3,7 @@ name := "bluebus"
 
 ThisBuild / version := "v" + sys.env.getOrElse("DRONE_BUILD_NUMBER", sys.env.getOrElse("BUILD_ID", "DEV"))
 
-scalaVersion := "2.13.15"
+scalaVersion := "2.13.16"
 
 name := "bluebus"
 organization := "uk.gov.homeoffice"
@@ -12,7 +12,7 @@ description := "Forked from https://github.com/sothach/bluebus"
 
 val artifactory = "https://artifactory.digital.homeoffice.gov.uk/"
 
-val pekkoVersion = "1.1.1"
+val pekkoVersion = "1.1.3"
 val pekkoHttpVersion = "1.1.0"
 
 libraryDependencies ++= Seq(
