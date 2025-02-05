@@ -1,4 +1,4 @@
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import bluebus.client.ServiceBusClient
 import bluebus.configuration.SBusConfig
 import org.scalatest.matchers.should.Matchers

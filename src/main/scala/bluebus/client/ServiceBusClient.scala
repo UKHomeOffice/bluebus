@@ -1,9 +1,9 @@
 package bluebus.client
 
-import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.headers.RawHeader
-import akka.http.scaladsl.model.{HttpHeader, HttpMethods, HttpRequest, HttpResponse}
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.http.scaladsl.model.headers.RawHeader
+import org.apache.pekko.http.scaladsl.model.{HttpHeader, HttpMethods, HttpRequest, HttpResponse}
 import bluebus.configuration.SBusConfig
 
 import scala.concurrent.ExecutionContext.Implicits.global
