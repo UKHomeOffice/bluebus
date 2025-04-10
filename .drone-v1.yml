@@ -8,9 +8,44 @@ platform:
   arch: amd64
 
 steps:
+
+  - name: test
+    pull: if-not-exists
+    image: quay.io/ukhomeofficedigital/scala-sbt-nodejs:v1.4.0-debian12-jdk17-node20
+    commands:
+      - /root/entrypoint.sh
+      - sbt test
+    environment:
+      ARTIFACTORY_PASSWORD:
+        from_secret: ARTIFACTORY_PASSWORD
+      ARTIFACTORY_USERNAME: drt-artifactory-robot
+    when:
+      branch:
+        - ${DRONE_BRANCH}
+      event:
+        - push
+
+  - name: publish
+    pull: if-not-exists
+    image: quay.io/ukhomeofficedigital/scala-sbt-nodejs:v1.4.0-debian12-jdk17-node20
+    commands:
+      - /root/entrypoint.sh
+      - sbt publish
+    environment:
+      ARTIFACTORY_PASSWORD:
+        from_secret: ARTIFACTORY_PASSWORD
+      ARTIFACTORY_USERNAME: drt-artifactory-robot
+    when:
+      branch:
+        - ${DRONE_BRANCH}
+      event:
+        - push
+    depends_on:
+      - test
+
   - name: analysis
     pull: if-not-exists
-    image: quay.io/ukhomeofficedigital/scala-sbt-nodejs:v1.0.0
+    image: quay.io/ukhomeofficedigital/scala-sbt-nodejs:v1.4.0-debian12-jdk17-node20
     commands:
       - /root/entrypoint.sh
       - sbt -ivy ./.ivy2 dependencyCheck
@@ -24,10 +59,12 @@ steps:
     when:
       event:
         - push
+    depends_on:
+      - publish
 
   - name: sonar-scanner
     pull: if-not-exists
-    image: quay.io/ukhomeofficedigital/sonar-scanner:v3.0.1
+    image: quay.io/ukhomeofficedigital/sonar-scanner:v4.6
     commands:
       - sonar-scanner -Dsonar.projectVersion=B${DRONE_BUILD_NUMBER}
     environment:
@@ -39,20 +76,4 @@ steps:
         - push
     depends_on:
       - analysis
-
-  - name: publish
-    pull: if-not-exists
-    image: quay.io/ukhomeofficedigital/scala-sbt-nodejs
-    commands:
-      - /root/entrypoint.sh
-      - sbt +publish
-    environment:
-      ARTIFACTORY_PASSWORD:
-        from_secret: ARTIFACTORY_PASSWORD
-      ARTIFACTORY_USERNAME: drt-artifactory-robot
-    when:
-      branch:
-        - ${DRONE_BRANCH}
-      event:
-        - push
 ...
