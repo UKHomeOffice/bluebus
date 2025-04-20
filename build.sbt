@@ -21,7 +21,7 @@ libraryDependencies ++= Seq(
   "org.apache.pekko" %% "pekko-http" % pekkoHttpVersion,
   "org.mockito" % "mockito-all" % "2.0.2-beta" % Test,
   "net.jadler" % "jadler-all" % "1.3.0" % Test,
-  "org.scalatest" %% "scalatest" % "3.2.15" % Test,
+  "org.scalatest" %% "scalatest" % "3.2.19" % Test,
 )
 
 publishTo := Some("release" at artifactory + "artifactory/libs-release")
