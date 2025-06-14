@@ -12,7 +12,7 @@ description := "Forked from https://github.com/sothach/bluebus"
 
 val artifactory = "https://artifactory.digital.homeoffice.gov.uk/"
 
-val pekkoVersion = "1.1.3"
+val pekkoVersion = "1.1.4"
 val pekkoHttpVersion = "1.1.0"
 
 libraryDependencies ++= Seq(
